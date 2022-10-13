@@ -42,7 +42,7 @@ class Pueue implements StrategyInterface
     /**
      * @var string|null
      */
-    private ?string $group;
+    private ?string $pueueGroup;
 
     /**
      *
@@ -64,7 +64,7 @@ class Pueue implements StrategyInterface
         $this->serverUrl = $serverUrl;
         $this->phpPath = $phpPath;
         $this->pueuePath = $pueuePath;
-        $this->group = $group;
+        $this->pueueGroup = $group;
     }
 
     /**
@@ -72,7 +72,7 @@ class Pueue implements StrategyInterface
      */
     public function getGroup(): string
     {
-        return $this->group;
+        return $this->pueueGroup;
     }
 
     /**
@@ -81,7 +81,7 @@ class Pueue implements StrategyInterface
      */
     public function setGroup(string $group)
     {
-        $this->group = $group;
+        $this->pueueGroup = $group;
     }
 
     /**
@@ -99,6 +99,7 @@ class Pueue implements StrategyInterface
      */
     public function send(Job $job)
     {
+        // php path
         if ($this->phpPath) {
             $phpPath = $this->cli->validateCommand($this->phpPath);
             if (false === $phpPath) {
@@ -111,6 +112,7 @@ class Pueue implements StrategyInterface
             }
         }
 
+        // pueue path
         if ($this->pueuePath) {
             $pueuePath = $this->cli->validateCommand($this->pueuePath);
             if (false === $pueuePath) {
@@ -123,23 +125,40 @@ class Pueue implements StrategyInterface
             }
         }
 
-        $script = OMEKA_PATH . '/application/data/scripts/perform-job.php';
+        // build job command
+        $jobScript = OMEKA_PATH . '/application/data/scripts/perform-job.php';
 
         $jobCommand = sprintf(
             '%s %s --job-id %s --base-path %s --server-url %s',
             escapeshellcmd($phpPath),
-            escapeshellarg($script),
+            escapeshellarg($jobScript),
             escapeshellarg($job->getId()),
             escapeshellarg($this->basePath),
             escapeshellarg($this->serverUrl)
         );
 
+        // build pueue command
+        $pueueGroup = $job->getArgs()['pueue:group'] ?? $this->pueueGroup;
+
         $cliCommand = sprintf(
             '%s add %s "%s"',
             escapeshellcmd($pueuePath),
-            $this->group ? " -g ".escapeshellarg($this->group) : "",
+            $pueueGroup ? " -g ".escapeshellarg($pueueGroup) : "",
             $jobCommand
         );
+
+        // adjust niceness
+        $nicePath = $this->cli->getCommandPath('nice');
+        $niceLevel = (int) ($job->getArgs()['pueue:nice'] ?? 10);
+        $niceLevel = (0 <= $niceLevel) && ($niceLevel <= -19) ? $niceLevel : 10;
+
+        if ( $nicePath && $niceLevel !== 0 ) {
+            $cliCommand = sprintf(
+                'nice -n %s %s',
+                $niceLevel,
+                $cliCommand
+            );
+        }
 
         $status = $this->cli->execute(sprintf('%s > /dev/null 2>&1 &', $cliCommand));
         if ($status === false) {

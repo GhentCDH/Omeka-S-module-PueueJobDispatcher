@@ -29,7 +29,8 @@ class PueueFactory implements FactoryInterface
             $phpPath = $config['cli']['phpcli_path'];
         }
         $pueuePath = $settings->get('pueue_path');
+        $pueueGroup = $settings->get('pueue_group');
         return new Pueue($container->get('Omeka\Cli'), $container->get('Omeka\Logger'), $basePathHelper(),
-            $serverUrlHelper(), $phpPath, $pueuePath);
+            $serverUrlHelper(), $phpPath, $pueuePath, $pueueGroup);
     }
 }
