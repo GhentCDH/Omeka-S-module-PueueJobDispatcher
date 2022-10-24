@@ -48,6 +48,7 @@ class Module extends AbstractModule
         /** @var $settings Settings */
         $settings = $services->get('Omeka\Settings');
         if ( $settings->get('pueue_enabled') ) {
+            $services->setAllowOverride(true);
             $services->setAlias('Omeka\Job\DispatchStrategy', Pueue::class);
         }
     }
