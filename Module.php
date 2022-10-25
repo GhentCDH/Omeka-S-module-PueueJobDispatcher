@@ -9,6 +9,7 @@ use PueueJobDispatcher\Form\ConfigForm;
 use Laminas\Config\Factory;
 use Omeka\Mvc\Controller\Plugin\Messenger;
 use Generic\AbstractModule;
+use PueueJobDispatcher\Job\DispatchStrategy\Pueue;
 
 if (!class_exists(\Generic\AbstractModule::class)) {
     require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
@@ -72,6 +73,7 @@ class Module extends AbstractModule
         $form->setData($data);
 
         // checks
+        // check pueue path
         if ($data['pueue_path']) {
             $pueuePath = $cli->validateCommand($data['pueue_path']);
             if (false === $pueuePath) {
@@ -83,7 +85,7 @@ class Module extends AbstractModule
                 $messenger->addError("Pueue client not found.");
             }
         }
-
+        // check pueue client
         if ($pueuePath) {
             $version = $cli->execute(
                 sprintf('%s --version', escapeshellcmd($pueuePath) )
@@ -102,6 +104,11 @@ class Module extends AbstractModule
                     $messenger->addSuccess('Pueue service running.');
                 }
             }
+        }
+        // check pueue dispatch service
+        $dispatcher = $services->get('Omeka\Job\DispatchStrategy');
+        if ($dispatcher instanceof Pueue) {
+            $messenger->addSuccess('Omeka Pueue Dispatch Service installed.');
         }
 
         $form->prepare();
