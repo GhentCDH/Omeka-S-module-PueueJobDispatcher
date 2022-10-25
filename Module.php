@@ -7,11 +7,8 @@ use Omeka\Settings\Settings;
 use Omeka\Stdlib\Cli;
 use PueueJobDispatcher\Form\ConfigForm;
 use Laminas\Config\Factory;
-use Laminas\ModuleManager\ModuleManager;
-use Laminas\Mvc\MvcEvent;
 use Omeka\Mvc\Controller\Plugin\Messenger;
 use Generic\AbstractModule;
-use PueueJobDispatcher\Job\DispatchStrategy\Pueue;
 
 if (!class_exists(\Generic\AbstractModule::class)) {
     require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
@@ -26,32 +23,6 @@ class Module extends AbstractModule
     private array $config = [];
 
     protected array $dependencies = [];
-
-    /**
-     * @param ModuleManager $moduleManager
-     */
-    public function init(ModuleManager $moduleManager)
-    {
-//        Omeka\Job\DispatchStrategy
-
-    }
-
-    /**
-     * @param MvcEvent $event
-     */
-    public function onBootstrap(MvcEvent $event)
-    {
-        parent::onBootstrap($event);
-
-        // overwrite Dispatchstrategy alias to Pueue?
-        $services = $this->getServiceLocator();
-        /** @var $settings Settings */
-        $settings = $services->get('Omeka\Settings');
-        if ( $settings->get('pueue_enabled') ) {
-            $services->setAllowOverride(true);
-            $services->setAlias('Omeka\Job\DispatchStrategy', Pueue::class);
-        }
-    }
 
     public function getConfig()
     {

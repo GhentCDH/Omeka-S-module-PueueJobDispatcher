@@ -10,5 +10,8 @@ return [
         'factories' => [
             Pueue::class => PueueFactory::class,
         ],
+        'aliases' => [
+            'Omeka\Job\DispatchStrategy' => Pueue::class,
+        ],
     ],
 ];
