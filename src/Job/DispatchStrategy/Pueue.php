@@ -9,44 +9,13 @@ use Laminas\Log\Logger;
 
 class Pueue implements StrategyInterface
 {
-    /**
-     * @var Cli
-     */
     protected Cli $cli;
-
-    /**
-     * @var Logger
-     */
     protected Logger $logger;
-
-    /**
-     * @var string
-     */
     protected string $basePath;
-
-    /**
-     * @var string
-     */
     protected string $serverUrl;
-
-    /**
-     * @var string|null
-     */
     protected ?string $phpPath;
-
-    /**
-     * @var string|null
-     */
     protected ?string $pueuePath;
-
-    /**
-     * @var string|null
-     */
     private ?string $pueueGroup;
-
-    /**
-     *
-     */
     protected array $commands = [];
 
     /**
@@ -56,7 +25,7 @@ class Pueue implements StrategyInterface
      * @param string $basePath Base URL for the installation
      * @param string|null $phpPath Path to the PHP CLI
      */
-    public function __construct(Cli $cli, Logger $logger, string $basePath, string $serverUrl, ?string $phpPath = null, ?string $pueuePath = null, ?string $group = null)
+    public function __construct(Cli $cli, Logger $logger, string $basePath, string $serverUrl, ?string $phpPath = null, ?string $pueuePath = null, ?string $pueueGroup = null)
     {
         $this->cli = $cli;
         $this->logger = $logger;
@@ -64,7 +33,7 @@ class Pueue implements StrategyInterface
         $this->serverUrl = $serverUrl;
         $this->phpPath = $phpPath;
         $this->pueuePath = $pueuePath;
-        $this->pueueGroup = $group;
+        $this->pueueGroup = $pueueGroup;
     }
 
     /**
