@@ -5,18 +5,8 @@ Pueue allows to limit the number of simultaneous background jobs, relaxing the s
 
 ## Requirements
 
-- Omeka-S 3.X or later
+- Omeka-S 3.X 
 
-## Contact
-
-- [Frederic Lamsens](https://www.ghentcdh.ugent.be)
-  
 ## Copyright
 
-* Copyright Ghent Centre for Digital Humanities, 2022
-    
-## Changelog
-
-### 1.0.0
-
-- initial release
+* Copyright [Ghent Centre for Digital Humanities](https://www.ghentcdh.ugent.be), 2023
