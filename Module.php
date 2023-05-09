@@ -95,10 +95,10 @@ class Module extends AbstractModule
             } else {
                 $version = str_replace('Pueue client ', '', $version);
                 $messenger->addSuccess("Pueue client {$version} found ({$pueuePath}).");
-                $groups = $cli->execute(
-                    sprintf('%s group', escapeshellcmd($pueuePath) )
+                $status = $cli->execute(
+                    sprintf('%s status --json', escapeshellcmd($pueuePath) )
                 );
-                if (false === $groups) {
+                if (false === $status) {
                     $messenger->addError('Failed to connect to pueue service.');
                 } else {
                     $messenger->addSuccess('Pueue service running.');
