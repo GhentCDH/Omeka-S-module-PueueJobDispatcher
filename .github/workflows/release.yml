@@ -20,7 +20,12 @@ jobs:
           tools: composer
 
       - name: Install dependencies
-        run: composer install --no-dev --prefer-dist --no-progress
+        run: |
+          if [ -f composer.json ]; then
+            composer install --no-dev --prefer-dist --no-progress
+          else
+            echo "No composer.json file found. Skipping dependency installation."
+          fi
 
       - name: Extract module name and version
         id: module-info
