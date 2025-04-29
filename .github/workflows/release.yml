@@ -1,0 +1,50 @@
+name: Zip Release Workflow
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on version tags (e.g., v1.0.0)
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          extensions: mbstring, xml, json
+          coverage: none
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install --no-dev --prefer-dist --no-progress
+
+      - name: Extract module name and version
+        id: module-info
+        run: |
+          repo_name=$(basename $GITHUB_REPOSITORY)
+          name=${repo_name#"Omeka-S-module-"}
+          version=${GITHUB_REF#refs/tags/v}
+          echo "Module name: $name"
+          echo "Version: $version"
+          echo "::set-output name=name::$name"
+          echo "::set-output name=version::$version"
+
+      - name: Prepare .zip release
+        run: |
+          version=${{ steps.module-info.outputs.version }}
+          name=${{ steps.module-info.outputs.name }}
+          echo "Preparing release for $name version $version"
+          rsync -ahv . "./$name" --exclude '.*' --exclude '*.sh'
+          zip -r "./$name-$version.zip" "./$name"
+          rm -rf "./$name"
+
+      # Upload the .zip file to the GitHub release
+      - name: Upload .zip to release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ${{ steps.module-info.outputs.name }}-${{ steps.module-info.outputs.version }}.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
